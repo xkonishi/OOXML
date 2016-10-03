@@ -5,9 +5,14 @@
 		//画面のブロック
 		$.blockUI();
 		
+		var base = '/services/apexrest';
+		if (sfdc.namespacePrefix) {
+			base += '/' + sfdc.namespacePrefix;
+		}
+		
 		$.when(
 			//Excelファイル（Base64形式）
-			$.ajax('/services/apexrest/CITS/officefile/'+this.id+'?userId='+sfdc.userId,
+			$.ajax(base+'/officefile/'+this.id+'?userId='+sfdc.userId,
 				   {
 					   beforeSend: function(xhr) {
 						   xhr.setRequestHeader('Authorization', 'Bearer '+sfdc.sessionId);
@@ -20,7 +25,7 @@
 					   }                       
 				   }),
 			//差し込みデータ
-			$.ajax('/services/apexrest/CITS/officedata/'+this.id+'?userId='+sfdc.userId,
+			$.ajax(base+'/officedata/'+this.id+'?userId='+sfdc.userId,
 				   {
 					   beforeSend: function(xhr) {
 						   xhr.setRequestHeader('Authorization', 'Bearer '+sfdc.sessionId);
