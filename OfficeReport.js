@@ -65,6 +65,12 @@
 	* @parameter	[String] reportName		レポート名
 	*/
 	function saveOffice(officedoc, mergedata, reportName) {
+		
+		const word = new openXml.Word(officedoc);
+		const mergeFields = word.getMergeField();
+		
+		
+/*
 		//Base64形式のOfficeファイルを読み込み
 		const pkg = new openXml.OpenXmlPackage(officedoc);
 		const main = pkg.mainDocumentPart();
@@ -73,7 +79,6 @@
 		const p = b.elements(openXml.W.p);
 
 
-/*
 		//各パーツの取得
 		var workbookPart = pkg.workbookPart();
 		var worksheetPart = workbookPart.worksheetParts()[0];
