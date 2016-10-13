@@ -65,11 +65,13 @@
 	* @parameter	[String] reportName		レポート名
 	*/
 	function saveOffice(officedoc, mergedata, reportName) {
-		
+
 		const word = new openXml.Word(officedoc);
 		const mergeFields = word.getMergeField();
-		
-		
+
+		word.save(reportName);
+
+
 /*
 		//Base64形式のOfficeファイルを読み込み
 		const pkg = new openXml.OpenXmlPackage(officedoc);
@@ -96,11 +98,11 @@
 
 		//差し込みデータの挿入
 		excel.mergeSheetData(mergedata, worksheetPart, tablePart, xmlmapPart);
-*/
 
 		//レポートファイルの出力
 		pkg.saveToBlobAsync(function (blob) {
 			saveAs(blob, reportName+'.docx');
 		});
+*/
 	};
 });
