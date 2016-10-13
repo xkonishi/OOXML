@@ -67,8 +67,7 @@
 	function saveOffice(officedoc, mergedata, reportName) {
 
 		const word = new openXml.Word(officedoc);
-		const mergeFields = word.getMergeField();
-
+		word.merge(mergedata);
 		word.save(reportName);
 
 
