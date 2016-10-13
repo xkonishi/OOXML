@@ -1,4 +1,4 @@
-(function(){
+﻿(function(){
 
     const pkg;
     const main;
