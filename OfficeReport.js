@@ -11,7 +11,7 @@
 		}
 
 		$.when(
-			//Excelファイル（Base64形式）
+			//Officeファイル（Base64形式）
 			$.ajax(base+'/officefile/'+this.id+'?userId='+sfdc.userId,
 				   {
 					   beforeSend: function(xhr) {
