@@ -48,42 +48,13 @@
         tbls.forEach(function(tbl, index, ar) {
 
             let trs = tbl.elements(openXml.W.tr);
-            if (trs.count() > 0) {
-                let tr = trs.elementAt(0);
-
-                let tcs = tr.elements(openXml.W.tc);
-                tcs.forEach(function(tc, index, ar) {
-
-                    let p = tc.element(openXml.W.p);
-                    if (p) {
-                        let fld = p.element(openXml.W.fldSimple);
-                        if (fld) {
-                            let obj = {}
-                            obj.el = p;
-                            obj.fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
-                            obj.sfdcInfo = obj.fieldName.match(/[A-Za-z]+/g);
-
-                            let sfdc_colname = obj.sfdcInfo[2];
-                            row[sfdc_colname] = obj;
-
-                            sfdc_childobj = obj.sfdcInfo[1];
-                        }
-                    }
-                });
-            }
-
-
-
-
-
-
             trs.forEach(function(tr, index, ar) {
 
-                let row = {};
                 let sfdc_childobj = '';
 
                 let tcs = tr.elements(openXml.W.tc);
-                tcs.forEach(function(tc, index, ar) {
+                for (let i=0; i<tcs.count(); i++) {
+                    let tc = tcs.elementAt(i);
 
                     let p = tc.element(openXml.W.p);
                     if (p) {
@@ -94,19 +65,19 @@
                             obj.fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
                             obj.sfdcInfo = obj.fieldName.match(/[A-Za-z]+/g);
 
-                            let sfdc_colname = obj.sfdcInfo[2];
-                            row[sfdc_colname] = obj;
-
                             sfdc_childobj = obj.sfdcInfo[1];
+                            if (!mergeFields[sfdc_childobj]) {
+                                mergeFields[sfdc_childobj] = {};
+                            }
+
+                            let sfdc_colname = obj.sfdcInfo[2];
+                            mergeFields[sfdc_childobj][sfdc_colname] = obj;
                         }
                     }
-                });
+                }
 
                 if (sfdc_childobj) {
-                    if (!mergeFields[sfdc_childobj]) {
-                        mergeFields[sfdc_childobj] = [];
-                    }
-                    mergeFields[sfdc_childobj].push(row);
+                    return true;//break
                 }
             });
         });
