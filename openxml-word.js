@@ -76,7 +76,7 @@
         let flds = openXml.Util.findElements(body, openXml.W.fldSimple, openXml.W.tbl);
         flds.forEach(function(fld, index, ar) {
             let obj = {}
-            obj.el = flds.parent;
+            obj.el = fld.parent;
             obj.fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
             obj.sfdcInfo = obj.fieldName.match(/[A-Za-z\.]+/g);
 
@@ -84,62 +84,27 @@
             mergeFields[sfdc_colname] = obj;
         });
 
-
-/*
-        let ps = body.elements(openXml.W.p);
-        ps.forEach(function(p, index, ar) {
-
-            let fld = p.element(openXml.W.fldSimple);
-            if (fld) {
-                let obj = {}
-                obj.el = p;
-                obj.fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
-                obj.sfdcInfo = obj.fieldName.match(/[A-Za-z\.]+/g);
-
-                let sfdc_colname = obj.sfdcInfo[1];
-                mergeFields[sfdc_colname] = obj;
-            }
-        });*/
-
         let tbls = body.elements(openXml.W.tbl);
         tbls.forEach(function(tbl, index, ar) {
+            let exeptElements = [openXml.W.tblPr, openXml.W.tblGrid];
+            let flds = openXml.Util.findElements(tbl, openXml.W.fldSimple, exeptElements);
 
-            let trs = tbl.elements(openXml.W.tr);
-            trs.forEach(function(tr, index, ar) {
+            flds.forEach(function(fld, index, ar) {
+                let obj = {}
+                obj.el = fld.parent;
+                obj.fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
+                obj.sfdcInfo = obj.fieldName.match(/[A-Za-z]+/g);
 
-                let sfdc_childobj = '';
-
-                let tcs = tr.elements(openXml.W.tc);
-                for (let i=0; i<tcs.count(); i++) {
-                    let tc = tcs.elementAt(i);
-
-                    let p = tc.element(openXml.W.p);
-                    if (p) {
-                        let fld = p.element(openXml.W.fldSimple);
-                        if (fld) {
-                            let obj = {}
-                            obj.el = p;
-                            obj.fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
-                            obj.sfdcInfo = obj.fieldName.match(/[A-Za-z]+/g);
-
-                            sfdc_childobj = obj.sfdcInfo[1];
-                            if (!mergeFields[sfdc_childobj]) {
-                                mergeFields[sfdc_childobj] = {};
-                            }
-
-                            let sfdc_colname = obj.sfdcInfo[2];
-                            mergeFields[sfdc_childobj].el = tr;
-                            mergeFields[sfdc_childobj][sfdc_colname] = obj;
-                        }
-                    }
+                sfdc_childobj = obj.sfdcInfo[1];
+                if (!mergeFields[sfdc_childobj]) {
+                    mergeFields[sfdc_childobj] = {};
                 }
 
-                if (sfdc_childobj) {
-                    return true;//break
-                }
+                let sfdc_colname = obj.sfdcInfo[2];
+                mergeFields[sfdc_childobj].el = fld.parent.parent.parent;
+                mergeFields[sfdc_childobj][sfdc_colname] = obj;
             });
         });
-
         return mergeFields;
     }
 }());
