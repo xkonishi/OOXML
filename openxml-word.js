@@ -33,27 +33,35 @@
 
                     //2行目以降を追加
                     let tr = mergeFields[sfdc_childobj].el;
+                    let trs = [tr];
                     for (let i=1; i<obj.records.length; i++) {
-                        tr.parent.add(new Ltxml.XElement(tr));
+                        let trnew = new Ltxml.XElement(tr);
+                        tr.parent.add(trnew);
+                        trs.push(trnew);
                     }
 
                     for (let i=0; i<obj.records.length; i++) {
                         let data = obj.records[i];
+                        let tr = trs[i];
 
                         Object.keys(data).forEach(function(key, index, ar) {
                             if ((typeof data[key]) !== 'object') {
                                 let val = data[key];
                                 if (mergeFields[sfdc_childobj][key]) {
-                                    let el = mergeFields[sfdc_childobj][key].el;
-                                    if (el) {
-                                        //差し込みフィールドの削除、およびテキスト挿入
-                                        el.element(openXml.W.fldSimple).remove();
-                                        el.add(new Ltxml.XElement(openXml.W.r, new Ltxml.XElement(openXml.W.t, val)));
+                                    if (i === 0) {
+                                        let el = mergeFields[sfdc_childobj][key].el;
+                                        if (el) {
+                                            //差し込みフィールドの削除、およびテキスト挿入
+                                            el.element(openXml.W.fldSimple).remove();
+                                            el.add(new Ltxml.XElement(openXml.W.r, new Ltxml.XElement(openXml.W.t, val)));
+                                        }
+                                    }
+                                    else {
+
                                     }
                                 }
                             }
                         });
-                        break;//とりあえず
                     }
                 }
             }
