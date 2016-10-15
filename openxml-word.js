@@ -12,7 +12,7 @@
     };
 
     openXml.Word.prototype.merge = function(mergedata) {
-        let mergeFields = getMergeFields();
+        let mergeFields = _getMergeFields();
 
         let data = mergedata[0];
         Object.keys(data).forEach(function(key, index, ar) {
@@ -68,11 +68,24 @@
 
     /************************ inner functions **************************/
 
-    function getMergeFields() {
+    function _getMergeFields() {
         let mergeFields = {};
 
         let body = mnXDoc.root.element(openXml.W.body);
 
+        let flds = openXml.Util.findElements(body, openXml.W.fldSimple, openXml.W.tbl);
+        flds.forEach(function(fld, index, ar) {
+            let obj = {}
+            obj.el = flds.parent;
+            obj.fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
+            obj.sfdcInfo = obj.fieldName.match(/[A-Za-z\.]+/g);
+
+            let sfdc_colname = obj.sfdcInfo[1];
+            mergeFields[sfdc_colname] = obj;
+        });
+
+
+/*
         let ps = body.elements(openXml.W.p);
         ps.forEach(function(p, index, ar) {
 
@@ -86,7 +99,7 @@
                 let sfdc_colname = obj.sfdcInfo[1];
                 mergeFields[sfdc_colname] = obj;
             }
-        });
+        });*/
 
         let tbls = body.elements(openXml.W.tbl);
         tbls.forEach(function(tbl, index, ar) {
