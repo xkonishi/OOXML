@@ -1,6 +1,8 @@
 ﻿(function(){
 
     /************************ openXml.Word **************************/
+    const REGEXP_SOBJ = /[A-Za-z\.]+/g;
+
     let pkg;
     let mnPart;
     let mnXDoc;
@@ -12,49 +14,75 @@
     };
 
     openXml.Word.prototype.merge = function(mergedata) {
-        let mergeFields = getMergeFields();
-
         let data = mergedata[0];
-        Object.keys(data).forEach(function(key, index, ar) {
-            if ((typeof data[key]) !== 'object') {
-                let val = data[key];
-                if (mergeFields[key]) {
-                    let el = mergeFields[key].el;
-                    if (el) {
-                        el.element(openXml.W.fldSimple).remove();
-                        el.add(new Ltxml.XElement(openXml.W.r, new Ltxml.XElement(openXml.W.t, val)));
+        let body = mnXDoc.root.element(openXml.W.body);
+
+        let flds = openXml.Util.findElements(body, openXml.W.fldSimple, openXml.W.tbl);
+        flds.forEach(function(fld, index, ar) {
+            let fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
+            let sobjInfo = fieldName.match(REGEXP_SOBJ);
+
+            if (sobjInfo.length === 2) {
+                let colname = sobjInfo[1];
+
+                if (data[colname]) {
+                    let val = data[colname];
+                    if (val) {
+                        //テキスト挿入、および差し込みフィールドの削除
+                        fld.parent.add(new Ltxml.XElement(openXml.W.r, new Ltxml.XElement(openXml.W.t, val)));
+                        fld.remove();
                     }
                 }
             }
-            else {
-                let sfdc_childobj = key;
-                if (mergeFields[sfdc_childobj]) {
-                    let obj = data[sfdc_childobj];
+        });
 
-                    //2行目以降を追加
-                    let tr = mergeFields[sfdc_childobj].el;
-                    for (let i=1; i<obj.records.length; i++) {
-                        tr.parent.add(new Ltxml.XElement(tr));
+        let tbls = body.elements(openXml.W.tbl);
+        tbls.forEach(function(tbl, index, ar) {
+            let exeptElements = [openXml.W.tblPr, openXml.W.tblGrid];
+            let flds = openXml.Util.findElements(tbl, openXml.W.fldSimple, exeptElements);
+
+            let objname;
+            let colnames = [];
+
+            //１行目のデータ設定
+            flds.forEach(function(fld, index, ar) {
+                let fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
+                let sobjInfo = fieldName.match(REGEXP_SOBJ);
+
+                if (sobjInfo.length === 3) {
+                    if (!objname) objname = sobjInfo[1];
+                    let colname = sobjInfo[2];
+                    colnames[index] = colname;
+
+                    if (data[objname] && data[objname].records.length > 0) {
+                        let val = data[objname].records[0][colname];
+                        if (val) {
+                            //テキスト挿入、および差し込みフィールドの削除
+                            fld.parent.add(new Ltxml.XElement(openXml.W.r, new Ltxml.XElement(openXml.W.t, val)));
+                            fld.remove();
+                        }
                     }
+                }
+            });
 
-                    for (let i=0; i<obj.records.length; i++) {
-                        let data = obj.records[i];
+            //２行目以降を追加
+            if (flds.length > 0) {
+                let tr = flds[0].parent.parent.parent;
+                for (let i=1; i<data[objname].records.length; i++) {
+                    let trnew = new Ltxml.XElement(tr);
 
-                        Object.keys(data).forEach(function(key, index, ar) {
-                            if ((typeof data[key]) !== 'object') {
-                                let val = data[key];
-                                if (mergeFields[sfdc_childobj][key]) {
-                                    let el = mergeFields[sfdc_childobj][key].el;
-                                    if (el) {
-                                        //差し込みフィールドの削除、およびテキスト挿入
-                                        el.element(openXml.W.fldSimple).remove();
-                                        el.add(new Ltxml.XElement(openXml.W.r, new Ltxml.XElement(openXml.W.t, val)));
-                                    }
-                                }
-                            }
-                        });
-                        break;//とりあえず
-                    }
+                    let ts = openXml.Util.findElements(trnew, openXml.W.t, openXml.W.tcPr);
+                    ts.forEach(function(t, index, ar) {
+                        let colname = colnames[index];
+
+                        let val = data[objname].records[i][colname];
+                        if (val) {
+                            //テキスト置き換え
+                            t.parent.add(new Ltxml.XElement(openXml.W.t, val));
+                            t.remove();
+                        }
+                    });
+                    tr.parent.add(trnew);
                 }
             }
         });
@@ -68,65 +96,4 @@
 
     /************************ inner functions **************************/
 
-    function getMergeFields() {
-        let mergeFields = {};
-
-        let body = mnXDoc.root.element(openXml.W.body);
-
-        let ps = body.elements(openXml.W.p);
-        ps.forEach(function(p, index, ar) {
-
-            let fld = p.element(openXml.W.fldSimple);
-            if (fld) {
-                let obj = {}
-                obj.el = p;
-                obj.fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
-                obj.sfdcInfo = obj.fieldName.match(/[A-Za-z\.]+/g);
-
-                let sfdc_colname = obj.sfdcInfo[1];
-                mergeFields[sfdc_colname] = obj;
-            }
-        });
-
-        let tbls = body.elements(openXml.W.tbl);
-        tbls.forEach(function(tbl, index, ar) {
-
-            let trs = tbl.elements(openXml.W.tr);
-            trs.forEach(function(tr, index, ar) {
-
-                let sfdc_childobj = '';
-
-                let tcs = tr.elements(openXml.W.tc);
-                for (let i=0; i<tcs.count(); i++) {
-                    let tc = tcs.elementAt(i);
-
-                    let p = tc.element(openXml.W.p);
-                    if (p) {
-                        let fld = p.element(openXml.W.fldSimple);
-                        if (fld) {
-                            let obj = {}
-                            obj.el = p;
-                            obj.fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
-                            obj.sfdcInfo = obj.fieldName.match(/[A-Za-z]+/g);
-
-                            sfdc_childobj = obj.sfdcInfo[1];
-                            if (!mergeFields[sfdc_childobj]) {
-                                mergeFields[sfdc_childobj] = {};
-                            }
-
-                            let sfdc_colname = obj.sfdcInfo[2];
-                            mergeFields[sfdc_childobj].el = tr;
-                            mergeFields[sfdc_childobj][sfdc_colname] = obj;
-                        }
-                    }
-                }
-
-                if (sfdc_childobj) {
-                    return true;//break
-                }
-            });
-        });
-
-        return mergeFields;
-    }
 }());
