@@ -67,7 +67,7 @@
 
             //２行目以降を追加
             if (flds.length > 0) {
-                let tr = flds[0].parent.parent.parent;//tbl
+                let tr = flds[0].parent.parent.parent;
                 for (let i=1; i<data[objname].records.length; i++) {
                     let trnew = new Ltxml.XElement(tr);
 
