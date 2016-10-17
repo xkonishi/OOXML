@@ -10,6 +10,7 @@
             base += '/' + sfdc.namespacePrefix;
         }
 
+        //Webサービスの実行
         $.when(
             //Officeファイル（Base64形式）
             $.ajax(base+'/officefile/'+this.id+'?userId='+sfdc.userId,
