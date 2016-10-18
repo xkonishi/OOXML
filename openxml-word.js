@@ -1,11 +1,12 @@
 ﻿(function(){
 
-    /************************ openXml.Word **************************/
     const REGEXP_SOBJ = /[A-Za-z\.]+/g;
 
     let pkg;
     let mnPart;
     let mnXDoc;
+
+    /************************ openXml.Word **************************/
 
     /**
     * コンストラクタ
