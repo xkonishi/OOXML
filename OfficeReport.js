@@ -39,12 +39,14 @@
                        }
                    }),
             //レポート名
-            this.name
+            this.name,
+            //ファイルタイプ
+            $(this).parent().prev().find('span').text()
         )
-        .done(function(fileResponse, dataResponse, reportName){
+        .done(function(fileResponse, dataResponse, reportName, fileType){
             try {
                 //レポート出力
-                saveOffice(fileResponse[0], dataResponse[0], reportName);
+                saveOffice(fileResponse[0], dataResponse[0], reportName, fileType);
             }
             catch (e) {
                 alert('Save Excel Error!!');
@@ -64,12 +66,16 @@
     * @parameter	[String] officedoc		Officeファイル（Base64形式）
     * @parameter	[Object] mergedata		差し込みデータ
     * @parameter	[String] reportName		レポート名
+    * @parameter	[String] fileType		ファイルタイプ[Excel/Word]
     */
-    function saveOffice(officedoc, mergedata, reportName) {
-        
-        let word = new openXml.Word(officedoc);
-        word.merge(mergedata);
-        word.save(reportName);
+    function saveOffice(officedoc, mergedata, reportName, fileType) {
+
+        if (fileType === 'Word') {
+            let word = new openXml.Word(officedoc);
+            word.merge(mergedata);
+            word.save(reportName);
+        }
+
 
 /*
         //Base64形式のOfficeファイルを読み込み
