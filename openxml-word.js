@@ -1,9 +1,13 @@
 ﻿(function(){
 
-    const REGEXP_SOBJ = /[A-Za-z\.]+/g;
+    //正規表現パターン（差し込みフィールド用）
+    const REGEXP_MERGE = /[A-Za-z\.]+/g;
 
+    //パッケージオブジェクト
     let pkg;
+    //メインドキュメントパーツ（word/document.xml）
     let mnPart;
+    //メインドキュメント
     let mnXDoc;
 
     /************************ openXml.Word **************************/
@@ -29,7 +33,7 @@
         let flds = openXml.Util.findElements(body, openXml.W.fldSimple, openXml.W.tbl);
         flds.forEach(function(fld, index, ar) {
             let fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
-            let sobjInfo = fieldName.match(REGEXP_SOBJ);
+            let sobjInfo = fieldName.match(REGEXP_MERGE);
 
             if (sobjInfo.length === 2) {
                 let colname = sobjInfo[1];
@@ -56,7 +60,7 @@
             //１行目のデータ設定
             flds.forEach(function(fld, index, ar) {
                 let fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
-                let sobjInfo = fieldName.match(REGEXP_SOBJ);
+                let sobjInfo = fieldName.match(REGEXP_MERGE);
 
                 if (sobjInfo.length === 3) {
                     if (!objname) objname = sobjInfo[1];
