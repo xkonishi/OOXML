@@ -1,29 +1,47 @@
 ﻿(function(){
-	//スプレッドシート要素名
-    const S = openXml.S;
-    //名前空間なしの要素名
-    const NN = openXml.NoNamespace;
 
-    //属性
-    const XAttribute = Ltxml.XAttribute;
-    //エレメント
-    const XElement = Ltxml.XElement;
-
-	let pkg;
+    //パッケージオブジェクト
+    let pkg;
+    //ワークブックパーツ（xl/workbook.xml）
+    let workbookPart;
+    //ワークシートパーツ（xl/worksheets/sheet[n].xml）
+    let worksheetPart;
+    //テーブルパーツ（xl/tables/table[n].xml）
+    let tablePart;
+    //マップパーツ（xl/xmlMaps.xml）
+    let xmlmapPart;
 
     /************************ openXml.Excel **************************/
+
+    /**
+    * コンストラクタ
+    * @param [String] officedoc		Officeファイル（Base64形式）
+    */
     openXml.Excel = function(officedoc) {
-		pkg = new openXml.OpenXmlPackage(officedoc);
-	};
+        pkg = new openXml.OpenXmlPackage(officedoc);
+        workbookPart = pkg.workbookPart();
+        worksheetPart = workbookPart.worksheetParts()[0];
+        tablePart = worksheetPart.tableDefinitionParts()[0];
+        xmlmapPart = pkg.getPartByUri('/xl/xmlMaps.xml');
+    };
 
-    openXml.Excel.prototype.workbook = function() {
-        obj = {};
+    /**
+    * 差し込みデータの挿入
+    * @param [Object] mergedata		差し込みデータ
+    */
+    openXml.Word.prototype.merge = function(mergedata) {
+    };
 
-        let workbookPart = pkg.workbookPart();
-        let wbXDoc = workbookPart.getXDocument();
-        let sheets = wbXDoc.root.element(S.sheets).elements(S.sheet);
+    /**
+    * レポートファイルの出力
+    * @param [String] reportName		レポート名
+    */
+    openXml.Word.prototype.save = function(reportName) {
+        pkg.saveToBlobAsync(function (blob) {
+            saveAs(blob, reportName+'.xlsx');
+        });
+    };
 
-        return obj;
-    }
+    /************************ inner functions **************************/
 
 }());

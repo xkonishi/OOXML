@@ -1,18 +1,31 @@
 ﻿(function(){
 
-    /************************ openXml.Word **************************/
-    const REGEXP_SOBJ = /[A-Za-z\.]+/g;
+    //正規表現パターン（差し込みフィールド用）
+    const REGEXP_MERGE = /[A-Za-z\.]+/g;
 
+    //パッケージオブジェクト
     let pkg;
+    //メインドキュメントパーツ（word/document.xml）
     let mnPart;
+    //メインドキュメント
     let mnXDoc;
 
+    /************************ openXml.Word **************************/
+
+    /**
+    * コンストラクタ
+    * @param [String] officedoc		Officeファイル（Base64形式）
+    */
     openXml.Word = function(officedoc) {
         pkg = new openXml.OpenXmlPackage(officedoc);
         mnPart = pkg.mainDocumentPart();
         mnXDoc = mnPart.getXDocument();
     };
 
+    /**
+    * 差し込みデータの挿入
+    * @param [Object] mergedata		差し込みデータ
+    */
     openXml.Word.prototype.merge = function(mergedata) {
         let data = mergedata[0];
         let body = mnXDoc.root.element(openXml.W.body);
@@ -20,7 +33,7 @@
         let flds = openXml.Util.findElements(body, openXml.W.fldSimple, openXml.W.tbl);
         flds.forEach(function(fld, index, ar) {
             let fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
-            let sobjInfo = fieldName.match(REGEXP_SOBJ);
+            let sobjInfo = fieldName.match(REGEXP_MERGE);
 
             if (sobjInfo.length === 2) {
                 let colname = sobjInfo[1];
@@ -47,7 +60,7 @@
             //１行目のデータ設定
             flds.forEach(function(fld, index, ar) {
                 let fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
-                let sobjInfo = fieldName.match(REGEXP_SOBJ);
+                let sobjInfo = fieldName.match(REGEXP_MERGE);
 
                 if (sobjInfo.length === 3) {
                     if (!objname) objname = sobjInfo[1];
@@ -88,6 +101,10 @@
         });
     };
 
+    /**
+    * レポートファイルの出力
+    * @param [String] reportName		レポート名
+    */
     openXml.Word.prototype.save = function(reportName) {
         pkg.saveToBlobAsync(function (blob) {
             saveAs(blob, reportName+'.docx');

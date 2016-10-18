@@ -3,6 +3,13 @@
     /************************ openXml.Util **************************/
     openXml.Util = {};
 
+    /**
+    * エレメントの検索
+    * @param [Object] rootEl        検索開始ルートエレメント
+    * @param [XName] targeTtag      検索対象タグ
+    * @param [XName] exceptTags     検索除外タグ（１つ、または配列で複数指定可能）
+    * @return 検索結果
+    */
     openXml.Util.findElements = function(rootEl, targeTtag, exceptTags) {
         let results = [];
 
@@ -14,6 +21,13 @@
 
     /************************ inner functions **************************/
 
+    /**
+    * エレメントの検索
+    * @param rootEl         検索開始ルートエレメント
+    * @param targeTtag      検索対象タグ（Ltxml.XName型）
+    * @param exceptTags     検索除外タグ（１つ、または配列で複数指定可能）
+    * @param results        検索結果
+    */
     function _findElements(rootEl, targeTtag, except, results) {
 
         if (rootEl.nodeType === 'Element') {

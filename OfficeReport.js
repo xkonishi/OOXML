@@ -70,7 +70,12 @@
     */
     function saveOffice(officedoc, mergedata, reportName, fileType) {
 
-        if (fileType === 'Word') {
+        if (fileType === 'Excel') {
+            let excel = new openXml.Excel(officedoc);
+            excel.merge(mergedata);
+            excel.save(reportName);
+        }
+        else if (fileType === 'Word') {
             let word = new openXml.Word(officedoc);
             word.merge(mergedata);
             word.save(reportName);
