@@ -7,12 +7,20 @@
     let mnPart;
     let mnXDoc;
 
+    /**
+    * コンストラクタ
+    * @param [String] officedoc		Officeファイル（Base64形式）
+    */
     openXml.Word = function(officedoc) {
         pkg = new openXml.OpenXmlPackage(officedoc);
         mnPart = pkg.mainDocumentPart();
         mnXDoc = mnPart.getXDocument();
     };
 
+    /**
+    * 差し込みデータの挿入
+    * @param [Object] mergedata		差し込みデータ
+    */
     openXml.Word.prototype.merge = function(mergedata) {
         let data = mergedata[0];
         let body = mnXDoc.root.element(openXml.W.body);
@@ -88,6 +96,10 @@
         });
     };
 
+    /**
+    * レポートファイルの出力
+    * @param [String] reportName		レポート名
+    */
     openXml.Word.prototype.save = function(reportName) {
         pkg.saveToBlobAsync(function (blob) {
             saveAs(blob, reportName+'.docx');
