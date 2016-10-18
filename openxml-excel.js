@@ -29,14 +29,14 @@
     * 差し込みデータの挿入
     * @param [Object] mergedata		差し込みデータ
     */
-    openXml.Word.prototype.merge = function(mergedata) {
+    openXml.Excel.prototype.merge = function(mergedata) {
     };
 
     /**
     * レポートファイルの出力
     * @param [String] reportName		レポート名
     */
-    openXml.Word.prototype.save = function(reportName) {
+    openXml.Excel.prototype.save = function(reportName) {
         pkg.saveToBlobAsync(function (blob) {
             saveAs(blob, reportName+'.xlsx');
         });
