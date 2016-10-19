@@ -90,9 +90,9 @@
                 let tr = flds[0].parent.parent.parent;//1行目のtr
 
                 for (let i=1; i<data.records.length; i++) {
-                    let trnew = new Ltxml.XElement(tr);
+                    let newtr = new Ltxml.XElement(tr);
 
-                    let ts = openXml.Util.findElements(trnew, openXml.W.t, openXml.W.tcPr);
+                    let ts = openXml.Util.findElements(newtr, openXml.W.t, openXml.W.tcPr);
                     ts.forEach(function(t, index, ar) {
                         let colname = colnames[index];
 
@@ -103,7 +103,7 @@
                             t.remove();
                         }
                     });
-                    tr.parent.add(trnew);
+                    tr.parent.add(newtr);
                 }
             }
         });

@@ -2,14 +2,13 @@
 
     //パッケージオブジェクト
     let pkg;
-    //ワークブックパーツ（xl/workbook.xml）
-    let workbookPart;
-    //ワークシートパーツ（xl/worksheets/sheet[n].xml）
-    let worksheetPart;
-    //テーブルパーツ（xl/tables/table[n].xml）
-    let tablePart;
-    //マップパーツ（xl/xmlMaps.xml）
-    let xmlmapPart;
+
+    //ワークシート［xl/worksheets/sheet1.xml］XML文書
+    let wsXDoc;
+    //テーブル［xl/tables/table1.xml］XML文書
+    let tbXDoc;
+    //マップ［xl/xmlMaps.xml］XML文書
+    let mapXDoc;
 
     /************************ openXml.Excel **************************/
 
@@ -18,21 +17,90 @@
     * @param [String] officedoc		Officeファイル（Base64形式）
     */
     openXml.Excel = function(officedoc) {
+
+        //パッケージオブジェクト
         pkg = new openXml.OpenXmlPackage(officedoc);
-        workbookPart = pkg.workbookPart();
-        worksheetPart = workbookPart.worksheetParts()[0];
-        tablePart = worksheetPart.tableDefinitionParts()[0];
-        xmlmapPart = pkg.getPartByUri('/xl/xmlMaps.xml');
+
+        //ワークシート［xl/worksheets/sheet1.xml］XML文書
+        let worksheetPart = pkg.workbookPart().worksheetParts()[0];
+        wsXDoc = worksheetPart.getXDocument();
+
+        //テーブル［xl/tables/table1.xml］XML文書
+        let tablePart = worksheetPart.tableDefinitionParts()[0];
+        tbXDoc = tablePart.getXDocument();
+
+        //マップ［xl/xmlMaps.xml］XML文書
+        let xmlmapPart = pkg.getPartByUri('/xl/xmlMaps.xml');
+        mapXDoc = xmlmapPart.getXDocument();
     };
 
     /**
     * 差し込みデータの挿入
-    * @param [Object] mergedata		差し込みデータ
+    * @param [Array] mergedata		差し込みデータ
     */
     openXml.Excel.prototype.merge = function(mergedata) {
 
+        let ref = tbXDoc.root.attribute(openXml.NoNamespace._ref).value;
+        let range = toTableRange(ref);
+
+        let elTCs = tbXDoc.root.element(openXml.S.tableColumns);
+        let columns = openXml.Util.findElements(elTCs, openXml.S.tableColumn);
+
+        let colInfo = [];
+        columns.forEach(function(col, index, ar) {
+            let obj = {};
+            obj.name = col.attribute(openXml.NoNamespace.uniqueName).value;
+            obj.type = col.element(openXml.S.xmlColumnPr).attribute(openXml.NoNamespace.xmlDataType).value;
+            colInfo[index] = obj;
+        });
+
+        let elSD = wsXDoc.root.element(openXml.S.sheetData);
+        let rows = openXml.Util.findElements(elSD, openXml.S.row);
+
+        if (rows.length >= 2) {
+            //ヘッダ行の取得＆先頭データ行の削除
+            //（テーブルはヘッダ行と1行の空行で、テーブル以下にデータが存在しない前提）
+            let head = rows[rows.length-2];
+            rows[rows.length-1].remove();
+
+            //行番号
+            let rownum = range.bottom;
+
+            //ヘッダ行をコピーし、新規行を作成
+            let newrow = new Ltxml.XElement(head);
+            newrow.setAttributeValue(openXml.NoNamespace.r, rownum);
+
+            //先頭データの取得
+            let data = mergedata[0];
+
+            //先頭データの設定
+            let cs = openXml.Util.findElements(newrow, openXml.S.c);
+            cs.forEach(function(c, index, ar) {
+                let info = colInfo[index];
+                let value = data[info.name];
+                let type = info.type;
+                let r_attr = c.attribute(openXml.NoNamespace.r).value.match(/[A-Z]+/) + rownum;
+                c.parent.add(newCellElement(value, type, r_attr));
+                c.remove();
+            });
+
+            //新規行を追加
+            head.parent.add(newrow);
+
+            //２行目以降を追加
+            for (let i=1; i<mergedata.records.length; i++) {
+            }
+        }
+
+
+
+
+
+
+
         //■■■■■■■■■■■　以下は修正予定　■■■■■■■■■■■
 
+/*
         //シートデータのクリア
         clearSheetData(worksheetPart, tablePart);
 
@@ -41,6 +109,7 @@
 
         //差し込みデータの挿入
         mergeSheetData(mergedata, worksheetPart, tablePart, xmlmapPart);
+        */
     };
 
     /**
@@ -55,6 +124,54 @@
 
     /************************ inner functions **************************/
 
+    /**
+    * テーブル範囲の設定文字列より、先頭行・最終行・左位置・右位置を取得する
+    * 例） "C3:F4"-> 先頭行：3、最終行：4、左位置："C"、右位置："F"
+    * @param ref            ref属性の値
+    * @return テーブル範囲オブジェクト
+    */
+    function toTableRange(ref) {
+        let range = {};
+        range.top = Number(ref.match( /\d+/g)[0]);
+        range.bottom = Number(ref.match( /\d+/g)[1]);
+        range.left = ref.match(/[A-Z]+/g)[0];
+        range.right = ref.match(/[A-Z]+/g)[1];
+
+        return range;
+    }
+
+    /**
+    * セルエレメントを作成する 【"string","int","long"以外のデータ型は、case文の追加が必要です】
+    * @param value          セル値
+    * @param type           データ型
+    * @param r_attr         r属性値（セル指定文字：例）"A1"）
+    * @return XElementオブジェクト
+    */
+    function newCellElement(value, type, r_attr) {
+        var cellElement;
+
+        if (value) {
+            switch (type) {
+                case "string":
+                    cellElement = new XElement(openXml.S.c, new XAttribute(openXml.NoNamespace.r, r_attr), new XAttribute(openXml.NoNamespace.t, "inlineStr"),
+                                        new XElement(openXml.S._is,  new XElement(openXml.S.t, value)));
+                    break;
+                case "int":
+                case "long":
+                    cellElement = new XElement(openXml.S.c, new XAttribute(openXml.NoNamespace.r, r_attr), new XAttribute(openXml.NoNamespace.t, "n"),
+                                        new XElement(openXml.NoNamespace.v, value));
+                    break;
+                default:
+                    cellElement = new XElement(openXml.S.c, new XAttribute(openXml.NoNamespace.r, r_attr), new XAttribute(openXml.NoNamespace.s, "1"));
+                    break;
+            }
+        }
+        else {
+            cellElement = new XElement(openXml.S.c, new XAttribute(openXml.NoNamespace.r, r_attr), new XAttribute(openXml.NoNamespace.s, "1"));
+        }
+
+        return cellElement;
+    }
     //■■■■■■■■■■■　以下は修正予定　■■■■■■■■■■■
 
     /**
@@ -119,6 +236,7 @@
     * @param tablePart      テーブルパートオブジェクト
     * @return テーブル範囲オブジェクト
     */
+    /*
     function getTableRange(tablePart) {
         var range = {};
 
@@ -131,7 +249,7 @@
         range.right = refs.match(/[A-Z]+/g)[1];
 
         return range;
-    }
+    }*/
 
     /**
     * データ件数よりテーブル範囲の設定文字列を変更する
