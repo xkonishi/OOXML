@@ -61,6 +61,7 @@
 
             let objname;
             let colnames = [];
+            let data;
 
             //１行目のデータ設定
             flds.forEach(function(fld, index, ar) {
@@ -72,8 +73,9 @@
                     let colname = sobjInfo[2];
                     colnames[index] = colname;
 
-                    if (mergedata[objname] && mergedata[objname].records.length > 0) {
-                        let val = mergedata[objname].records[0][colname];
+                    data = mergedata[objname];
+                    if (data && data.records.length > 0) {
+                        let val = data.records[0][colname];
                         if (val) {
                             //テキスト挿入、および差し込みフィールドの削除
                             fld.parent.add(new Ltxml.XElement(openXml.W.r, new Ltxml.XElement(openXml.W.t, val)));
@@ -85,15 +87,16 @@
 
             //２行目以降を追加
             if (flds.length > 0) {
-                let tr = flds[0].parent.parent.parent;
-                for (let i=1; i<mergedata[objname].records.length; i++) {
+                let tr = flds[0].parent.parent.parent;//1行目のtr
+
+                for (let i=1; i<data.records.length; i++) {
                     let trnew = new Ltxml.XElement(tr);
 
                     let ts = openXml.Util.findElements(trnew, openXml.W.t, openXml.W.tcPr);
                     ts.forEach(function(t, index, ar) {
                         let colname = colnames[index];
 
-                        let val = mergedata[objname].records[i][colname];
+                        let val = data.records[i][colname];
                         if (val) {
                             //テキスト置き換え
                             t.parent.add(new Ltxml.XElement(openXml.W.t, val));
