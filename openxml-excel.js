@@ -88,7 +88,31 @@
             head.parent.add(newrow);
 
             //２行目以降を追加
-            for (let i=1; i<mergedata.records.length; i++) {
+            for (let i=1; i<mergedata.length; i++) {
+
+                //行番号
+                let rownum = range.bottom + i;
+
+                //ヘッダ行をコピーし、新規行を作成
+                let newrow = new Ltxml.XElement(head);
+                newrow.setAttributeValue(openXml.NoNamespace.r, rownum);
+
+                //データの取得
+                let data = mergedata[i];
+
+                //データの設定
+                let cs = openXml.Util.findElements(newrow, openXml.S.c);
+                cs.forEach(function(c, index, ar) {
+                    let info = colInfo[index];
+                    let value = data[info.name];
+                    let type = info.type;
+                    let r_attr = c.attribute(openXml.NoNamespace.r).value.match(/[A-Z]+/) + rownum;
+                    c.parent.add(newCellElement(value, type, r_attr));
+                    c.remove();
+                });
+
+                //新規行を追加
+                head.parent.add(newrow);
             }
         }
 
