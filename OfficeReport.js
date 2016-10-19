@@ -49,7 +49,7 @@
                 saveOffice(fileResponse[0], dataResponse[0], reportName, fileType);
             }
             catch (e) {
-                alert('Save Excel Error!!');
+                alert('Merge Error!!');
             }
         })
         .fail(function() {
@@ -77,7 +77,7 @@
         }
         else if (fileType === 'Word') {
             let word = new openXml.Word(officedoc);
-            word.merge(mergedata);
+            word.merge(mergedata[0]);
             word.save(reportName);
         }
 

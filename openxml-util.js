@@ -11,9 +11,10 @@
     * @return 検索結果
     */
     openXml.Util.findElements = function(rootEl, targeTtag, exceptTags) {
-        let results = [];
 
         let except = (Array.isArray(exceptTags)) ? exceptTags : [exceptTags];
+        let results = [];
+
         _findElements(rootEl, targeTtag, except, results);
 
         return results;
