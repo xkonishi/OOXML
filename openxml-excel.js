@@ -20,11 +20,11 @@
         pkg = new openXml.OpenXmlPackage(officedoc);
 
         //ワークシート［xl/worksheets/sheet1.xml］XML文書
-        let worksheetPart = pkg.workbookPart().worksheetParts()[0];
+        let worksheetPart = pkg.workbookPart().worksheetParts()[0];//検証プログラムのため、先頭シート固定とする
         wsXDoc = worksheetPart.getXDocument();
 
         //テーブル［xl/tables/table1.xml］XML文書
-        let tablePart = worksheetPart.tableDefinitionParts()[0];
+        let tablePart = worksheetPart.tableDefinitionParts()[0];//検証プログラムのため、先頭テーブル固定とする
         tbXDoc = tablePart.getXDocument();
     };
 
