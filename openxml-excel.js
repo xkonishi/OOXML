@@ -38,46 +38,49 @@
         let ref = tbXDoc.root.attribute(openXml.NoNamespace._ref).value;
         let range = refToRange(ref);
 
-        let elTCs = tbXDoc.root.element(openXml.S.tableColumns);
-        let columns = openXml.Util.findElements(elTCs, openXml.S.tableColumn);
-
+        //テーブル情報の取得
         let colInfo = [];
-        columns.forEach(function(col, index, ar) {
-            let obj = {};
-            obj.name = col.attribute(openXml.NoNamespace.uniqueName).value;
-            obj.type = col.element(openXml.S.xmlColumnPr).attribute(openXml.NoNamespace.xmlDataType).value;
-            colInfo[index] = obj;
+        tbXDoc.root.descendants(openXml.S.tableColumn).forEach(function(col, index, ar) {
+            colInfo[index] = {
+                name: col.attribute(openXml.NoNamespace.uniqueName).value,
+                type: col.element(openXml.S.xmlColumnPr).attribute(openXml.NoNamespace.xmlDataType).value
+            };
         });
 
-        let elSD = wsXDoc.root.element(openXml.S.sheetData);
-        let rows = openXml.Util.findElements(elSD, openXml.S.row);
+        // let elSD = wsXDoc.root.element(openXml.S.sheetData);
+        // let rows = openXml.Util.findElements(elSD, openXml.S.row);
 
-        if (rows.length >= 2) {
-            //ヘッダ行の取得＆先頭データ行の削除
-            //（テーブルはヘッダ行＋1行のデータ行のみで、テーブル以下にデータが存在しない前提）
-            let head = rows[rows.length-2];
-            rows[rows.length-1].remove();
+        //シートの行データを取得
+        let rows = wsXDoc.root.element(openXml.S.sheetData).descendants(openXml.S.row);
 
-            //２行目以降を追加
+        //本処理は、以下の条件以外は動作保証しない
+        //・シート内のテーブルは１つ
+        //・テーブルはヘッダ行＋1行の空行
+        //・テーブル以降のセルに余計な値を設定しない（ヘッダ行をコピーしてデータ行を作成しているため）
+        if (rows.count() >= 2) {
+            //テーブルの空行を削除（最終行も１減らす）
+            rows.last().remove();
+            range.bottom -= 1;
+
+            //テーブルのヘッダ行を取得
+            let head = rows.elementAt(rows.count()-2);
+
+            //データ件数分データ行を追加する
             for (let i=0; i<mergedata.length; i++) {
 
-                //行番号
-                let rownum = range.bottom + i;
+                //テーブルの最終行番号の更新
+                range.bottom += 1;
 
                 //ヘッダ行をコピーし、新規行を作成
                 let newrow = new Ltxml.XElement(head);
-                newrow.setAttributeValue(openXml.NoNamespace.r, rownum);
-
-                //データの取得
-                let data = mergedata[i];
+                newrow.setAttributeValue(openXml.NoNamespace.r, range.bottom);
 
                 //データの設定
-                let cs = openXml.Util.findElements(newrow, openXml.S.c);
-                cs.forEach(function(c, index, ar) {
+                newrow.descendants(openXml.S.c).forEach(function(c, index, ar) {
                     let info = colInfo[index];
-                    let value = data[info.name];
+                    let value = mergedata[i][info.name];
                     let type = info.type;
-                    let r_attr = c.attribute(openXml.NoNamespace.r).value.match(/[A-Z]+/) + rownum;
+                    let r_attr = c.attribute(openXml.NoNamespace.r).value.match(/[A-Z]+/) + range.bottom;
                     c.parent.add(newCellElement(value, type, r_attr));
                     c.remove();
                 });
@@ -86,6 +89,13 @@
                 head.parent.add(newrow);
             }
         }
+
+        //テーブル範囲の更新
+        ref = rangeToRef(range);
+        tbXDoc.root.setAttributeValue(openXml.NoNamespace._ref, ref);
+
+        //テーブル範囲の更新（フィルタ）
+        tbXDoc.root.element(openXml.S.autoFilter).setAttributeValue(openXml.NoNamespace._ref, ref);
     };
 
     /**
@@ -139,28 +149,26 @@
     * @return XElementオブジェクト
     */
     function newCellElement(value, type, r_attr) {
-        var cellElement;
+        //セル属性の初期値（空白セル用）
+        let attr = [new Ltxml.XAttribute(openXml.NoNamespace.r, r_attr), new Ltxml.XAttribute(openXml.NoNamespace.s, "1")];
+        //データ用エレメント
+        let dataEl;
 
         if (value) {
             switch (type) {
                 case "string":
-                    cellElement = new Ltxml.XElement(openXml.S.c, new Ltxml.XAttribute(openXml.NoNamespace.r, r_attr), new Ltxml.XAttribute(openXml.NoNamespace.t, "inlineStr"),
-                                               new Ltxml.XElement(openXml.S._is,  new Ltxml.XElement(openXml.S.t, value)));
+                    attr[1] = new Ltxml.XAttribute(openXml.NoNamespace.t, "inlineStr");
+                    dataEl = new Ltxml.XElement(openXml.S._is,  new Ltxml.XElement(openXml.S.t, value));
                     break;
                 case "int":
                 case "long":
-                    cellElement = new Ltxml.XElement(openXml.S.c, new Ltxml.XAttribute(openXml.NoNamespace.r, r_attr), new Ltxml.XAttribute(openXml.NoNamespace.t, "n"),
-                                               new Ltxml.XElement(openXml.NoNamespace.v, value));
+                    attr[1] = new Ltxml.XAttribute(openXml.NoNamespace.t, "n");
+                    dataEl = new Ltxml.XElement(openXml.NoNamespace.v, value);
                     break;
                 default:
-                    cellElement = new Ltxml.XElement(openXml.S.c, new Ltxml.XAttribute(openXml.NoNamespace.r, r_attr), new Ltxml.XAttribute(openXml.NoNamespace.s, "1"));
                     break;
             }
         }
-        else {
-            cellElement = new Ltxml.XElement(openXml.S.c, new Ltxml.XAttribute(openXml.NoNamespace.r, r_attr), new Ltxml.XAttribute(openXml.NoNamespace.s, "1"));
-        }
-
-        return cellElement;
+        return new Ltxml.XElement(openXml.S.c, attr[0], attr[1], dataEl);
     }
 }());
