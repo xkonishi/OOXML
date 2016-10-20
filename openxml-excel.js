@@ -59,7 +59,7 @@
         if (rows.count() >= 2) {
             //テーブルの空行を削除（最終行も１減らす）
             rows.last().remove();
-            range.bottom -= 1;
+            range.bottom--;
 
             //テーブルのヘッダ行を取得
             let head = rows.elementAt(rows.count()-2);
@@ -68,7 +68,7 @@
             for (let i=0; i<mergedata.length; i++) {
 
                 //テーブルの最終行番号の更新
-                range.bottom += 1;
+                range.bottom++;
 
                 //ヘッダ行をコピーし、新規行を作成
                 let newrow = new Ltxml.XElement(head);

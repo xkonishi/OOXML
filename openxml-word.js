@@ -33,6 +33,55 @@
         //bodyタグ
         let body = mnXDoc.root.element(openXml.W.body);
 
+
+        body.elements(openXml.W.tbl).forEach(function(tbl, index, ar) {
+
+            let objname;
+            let colnames = [];
+            let data;
+
+            tbl.descendants(openXml.W.fldSimple).forEach(function(fld, index, ar) {
+                let fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
+                let fieldInfo = fieldName.match(REGEXP_MERGE);
+
+                if (fieldInfo.length === 3) {
+                    if (!objname) objname = fieldInfo[1];
+                    let colname = fieldInfo[2];
+                    colnames[index] = colname;
+
+                    data = mergedata[objname];
+                    if (data && data.records.length > 0) {
+                        let val = data.records[0][colname];
+                        if (val) {
+                            //テキスト挿入、および差し込みフィールドの削除
+                            fld.replaceWith(new Ltxml.XElement(openXml.W.r, new Ltxml.XElement(openXml.W.t, val)));
+                        }
+                    }
+                }
+            });
+
+            if (colnames.length > 0) {
+                let tr = tbl.elements(openXml.W.tr).last();
+
+                for (let i=1; i<data.records.length; i++) {
+                    let newtr = new Ltxml.XElement(tr);
+
+                    newtr.descendants(openXml.W.t).forEach(function(t, index, ar) {
+                        let colname = colnames[index];
+
+                        let val = data.records[i][colname];
+                        if (val) {
+                            //テキスト置き換え
+                            t.replaceWith(new Ltxml.XElement(openXml.W.t, val));
+                        }
+                    });
+                    tr.parent.add(newtr);
+                }
+            }
+        });
+
+
+
         //データの差し込み
         let flds = openXml.Util.findElements(body, openXml.W.fldSimple, openXml.W.tbl);
         flds.forEach(function(fld, index, ar) {
@@ -52,7 +101,7 @@
                 }
             }
         });
-
+/*
         //データの差し込み（子オブジェクト）
         let tbls = body.elements(openXml.W.tbl);
         tbls.forEach(function(tbl, index, ar) {
@@ -106,7 +155,7 @@
                     tr.parent.add(newtr);
                 }
             }
-        });
+        });*/
     };
 
     /**
