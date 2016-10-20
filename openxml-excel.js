@@ -42,13 +42,12 @@
         let colInfo = [];
         tbXDoc.root.descendants(openXml.S.tableColumn).forEach(function(col, index, ar) {
             colInfo[index] = {
+                //項目名
                 name: col.attribute(openXml.NoNamespace.uniqueName).value,
+                //データ型
                 type: col.element(openXml.S.xmlColumnPr).attribute(openXml.NoNamespace.xmlDataType).value
             };
         });
-
-        // let elSD = wsXDoc.root.element(openXml.S.sheetData);
-        // let rows = openXml.Util.findElements(elSD, openXml.S.row);
 
         //シートの行データを取得
         let rows = wsXDoc.root.element(openXml.S.sheetData).descendants(openXml.S.row);
@@ -75,14 +74,13 @@
                 let newrow = new Ltxml.XElement(head);
                 newrow.setAttributeValue(openXml.NoNamespace.r, range.bottom);
 
-                //データの設定
+                //各セルにデータを設定
                 newrow.descendants(openXml.S.c).forEach(function(c, index, ar) {
                     let info = colInfo[index];
                     let value = mergedata[i][info.name];
                     let type = info.type;
                     let r_attr = c.attribute(openXml.NoNamespace.r).value.match(/[A-Z]+/) + range.bottom;
-                    c.parent.add(newCellElement(value, type, r_attr));
-                    c.remove();
+                    c.replaceWith(newCellElement(value, type, r_attr));
                 });
 
                 //新規行を追加
@@ -90,7 +88,7 @@
             }
         }
 
-        //テーブル範囲の更新
+        //テーブル範囲の更新（サイズ）
         ref = rangeToRef(range);
         tbXDoc.root.setAttributeValue(openXml.NoNamespace._ref, ref);
 
