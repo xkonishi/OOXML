@@ -1,0 +1,1 @@
+SELECT Name,AnnualRevenue,Phone,Website,(SELECT Name,Title,Email,Phone FROM Contacts), (SELECT Name,StageName,Amount,CloseDate FROM Opportunities) FROM Account WHERE Id='0012800000FWzMnAAL'
