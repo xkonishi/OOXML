@@ -53,7 +53,7 @@
             };
         });
 
-        //シートの行データを取得
+        //シートの行エレメントを取得
         let rows = wsXDoc.root.element(openXml.S.sheetData).descendants(openXml.S.row);
         if (rows.count() >= 2) {
 
