@@ -140,7 +140,7 @@
         let array = fieldName.match(REGEXP_MERGE);
 
         //フィールド情報の作成
-        let fieldinfo;
+        let fieldinfo = {};
         if (array.length === 2) {
             //通常
             fieldinfo = {
