@@ -33,45 +33,52 @@
         //bodyタグ
         let body = mnXDoc.root.element(openXml.W.body);
 
-
+        //表のデータの差し込み（子オブジェクト）
         body.elements(openXml.W.tbl).forEach(function(tbl, index, ar) {
 
+            //以下は、２行目以降で使用する（データ・子オブジェクト名・項目名）
+            let data;
             let objname;
             let colnames = [];
-            let data;
 
+            //1行目の作成
             tbl.descendants(openXml.W.fldSimple).forEach(function(fld, index, ar) {
-                let fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
-                let fieldInfo = fieldName.match(REGEXP_MERGE);
 
-                if (fieldInfo.length === 3) {
-                    if (!objname) objname = fieldInfo[1];
-                    let colname = fieldInfo[2];
-                    colnames[index] = colname;
+                //フィールド情報の取得
+                let info = getMergeFieldInfo(fld)
+                if (info.childname && info.colname) {
 
-                    data = mergedata[objname];
-                    if (data && data.records.length > 0) {
-                        let val = data.records[0][colname];
+                    if (mergedata[info.childname] && mergedata[info.childname].records.length > 0) {
+                        let val = mergedata[info.childname].records[0][info.colname];
                         if (val) {
-                            //テキスト挿入、および差し込みフィールドの削除
+                            //差し込みフィールドをテキストに置き換え
                             fld.replaceWith(new Ltxml.XElement(openXml.W.r, new Ltxml.XElement(openXml.W.t, val)));
                         }
                     }
+
+                    //2行目以降で使用するため、データ・子オブジェクト名・項目名を保存しておく
+                    if (!data) data = mergedata[info.childname];
+                    if (!objname) objname = info.childname;
+                    colnames[index] = info.colname;
                 }
             });
 
+            //2行目以降の作成
             if (colnames.length > 0) {
+                //１行目を取得
                 let tr = tbl.elements(openXml.W.tr).last();
 
+                //レコード数分、１行目のコピーより行追加する
                 for (let i=1; i<data.records.length; i++) {
                     let newtr = new Ltxml.XElement(tr);
 
+                    //各列のtタグを編集する
                     newtr.descendants(openXml.W.t).forEach(function(t, index, ar) {
                         let colname = colnames[index];
 
                         let val = data.records[i][colname];
                         if (val) {
-                            //テキスト置き換え
+                            //テキスト値を置き換え
                             t.replaceWith(new Ltxml.XElement(openXml.W.t, val));
                         }
                     });
@@ -80,82 +87,22 @@
             }
         });
 
+        //表以外のデータの差し込み
+        body.descendants(openXml.W.fldSimple).forEach(function(fld, index, ar) {
 
+            //フィールド情報の取得
+            let info = getMergeFieldInfo(fld)
+            if (info.colname) {
 
-        //データの差し込み
-        let flds = openXml.Util.findElements(body, openXml.W.fldSimple, openXml.W.tbl);
-        flds.forEach(function(fld, index, ar) {
-            let fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
-            let sobjInfo = fieldName.match(REGEXP_MERGE);
-
-            if (sobjInfo.length === 2) {
-                let colname = sobjInfo[1];
-
-                if (mergedata[colname]) {
-                    let val = mergedata[colname];
+                if (mergedata[info.colname]) {
+                    let val = mergedata[info.colname];
                     if (val) {
-                        //テキスト挿入、および差し込みフィールドの削除
-                        fld.parent.add(new Ltxml.XElement(openXml.W.r, new Ltxml.XElement(openXml.W.t, val)));
-                        fld.remove();
+                        //差し込みフィールドをテキストに置き換え
+                        fld.replaceWith(new Ltxml.XElement(openXml.W.r, new Ltxml.XElement(openXml.W.t, val)));
                     }
                 }
             }
         });
-/*
-        //データの差し込み（子オブジェクト）
-        let tbls = body.elements(openXml.W.tbl);
-        tbls.forEach(function(tbl, index, ar) {
-            let exeptElements = [openXml.W.tblPr, openXml.W.tblGrid];
-            let flds = openXml.Util.findElements(tbl, openXml.W.fldSimple, exeptElements);
-
-            let objname;
-            let colnames = [];
-            let data;
-
-            //１行目のデータ設定
-            flds.forEach(function(fld, index, ar) {
-                let fieldName = fld.element(openXml.W.r).element(openXml.W.t).value;
-                let sobjInfo = fieldName.match(REGEXP_MERGE);
-
-                if (sobjInfo.length === 3) {
-                    if (!objname) objname = sobjInfo[1];
-                    let colname = sobjInfo[2];
-                    colnames[index] = colname;
-
-                    data = mergedata[objname];
-                    if (data && data.records.length > 0) {
-                        let val = data.records[0][colname];
-                        if (val) {
-                            //テキスト挿入、および差し込みフィールドの削除
-                            fld.parent.add(new Ltxml.XElement(openXml.W.r, new Ltxml.XElement(openXml.W.t, val)));
-                            fld.remove();
-                        }
-                    }
-                }
-            });
-
-            //２行目以降を追加
-            if (flds.length > 0) {
-                let tr = flds[0].parent.parent.parent;//1行目のtr
-
-                for (let i=1; i<data.records.length; i++) {
-                    let newtr = new Ltxml.XElement(tr);
-
-                    let ts = openXml.Util.findElements(newtr, openXml.W.t, openXml.W.tcPr);
-                    ts.forEach(function(t, index, ar) {
-                        let colname = colnames[index];
-
-                        let val = data.records[i][colname];
-                        if (val) {
-                            //テキスト置き換え
-                            t.parent.add(new Ltxml.XElement(openXml.W.t, val));
-                            t.remove();
-                        }
-                    });
-                    tr.parent.add(newtr);
-                }
-            }
-        });*/
     };
 
     /**
@@ -170,4 +117,40 @@
 
     /************************ inner functions **************************/
 
+    /**
+    * 差し込みフィールド名を“_”で分割し、フィールド情報（SFDCオブジェクト名・項目名）を作成する
+    * @param fld            fldSimpleエレメント
+    * @return フィールド情報
+    */
+    function getMergeFieldInfo(fld) {
+
+        //差し込みフィールド名の取得（tタグで分割されている場合があるので結合する）
+        //例）通常：《Account_Name》、子オブジェクト：《Account_Contacts_Name》
+        let fieldName = '';
+        fld.descendants(openXml.W.t).forEach(function(t, index, ar) {
+            fieldName += t.value;
+        });
+
+        //フィールド名を“_”で分割
+        let array = fieldName.match(REGEXP_MERGE);
+
+        //フィールド情報の作成
+        let fieldinfo;
+        if (array.length === 2) {
+            //通常
+            fieldinfo = {
+                objname: array[0],
+                colname: array[1]
+            };
+        }
+        else if (array.length === 3) {
+            //子オブジェクト
+            fieldinfo = {
+                objname: array[0],
+                childname: array[1],
+                colname: array[2]
+            };
+        }
+        return fieldinfo;
+    }
 }());
