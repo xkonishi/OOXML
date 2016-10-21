@@ -1,1 +1,6 @@
+Account:
 SELECT Name,AnnualRevenue,Phone,Website,(SELECT Name,Title,Email,Phone FROM Contacts) FROM Account WHERE Id='0012800000FWzMnAAL'
+
+Contact:
+SELECT Name, Account.Name FROM Contact WHERE Id='0032800000CeoAA'
+
