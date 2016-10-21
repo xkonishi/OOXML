@@ -30,6 +30,10 @@
 
     /**
     * 差し込みデータの挿入
+    * 注）本処理は、以下条件でのみ動作可能
+    * 　１．シート、およびシート内のテーブルは複数配置しない
+    * 　２．テーブルはヘッダ行＋1行の空行
+    * 　３．テーブル以降のセルに余計な値を設定しない（ヘッダ行をコピーしてデータ行を作成しているため）
     * @param [Array] mergedata		差し込みデータ
     */
     openXml.Excel.prototype.merge = function(mergedata) {
@@ -51,12 +55,8 @@
 
         //シートの行データを取得
         let rows = wsXDoc.root.element(openXml.S.sheetData).descendants(openXml.S.row);
-
-        //本処理は、以下の条件以外は動作保証しない
-        //・シート内のテーブルは１つ
-        //・テーブルはヘッダ行＋1行の空行
-        //・テーブル以降のセルに余計な値を設定しない（ヘッダ行をコピーしてデータ行を作成しているため）
         if (rows.count() >= 2) {
+
             //テーブルの空行を削除（最終行も１減らす）
             rows.last().remove();
             range.bottom--;

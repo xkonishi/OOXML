@@ -26,6 +26,11 @@
 
     /**
     * 差し込みデータの挿入
+    * 注）本処理は、以下条件でのみ動作可能
+    * 　１．差し込みフィールド名は《SFDCオブジェクト名_項目名》、子オブジェクトは《SFDCオブジェクト名_子オブジェクト名_項目名》
+    * 　２．子オブジェクト項目は、表内にのみ配置可能
+    * 　３．差し込みフィールドの装飾（太字、色、etc.）なし
+    * 　４．親オブジェクトのデータは差し込み不可
     * @param [Object] mergedata		差し込みデータ
     */
     openXml.Word.prototype.merge = function(mergedata) {
@@ -33,7 +38,7 @@
         //bodyタグ
         let body = mnXDoc.root.element(openXml.W.body);
 
-        //表のデータの差し込み（子オブジェクト）
+        //表データの差し込み
         body.elements(openXml.W.tbl).forEach(function(tbl, index, ar) {
 
             //以下は、２行目以降で使用する（データ・子オブジェクト名・項目名）
