@@ -80,36 +80,5 @@
             word.merge(mergedata[0]);
             word.save(reportName);
         }
-
-
-/*
-        //Base64形式のOfficeファイルを読み込み
-        const pkg = new openXml.OpenXmlPackage(officedoc);
-        const main = pkg.mainDocumentPart();
-        const mnXDoc = main.getXDocument();
-
-        //各パーツの取得
-        var workbookPart = pkg.workbookPart();
-        var worksheetPart = workbookPart.worksheetParts()[0];
-        var tablePart = worksheetPart.tableDefinitionParts()[0];
-        var xmlmapPart = pkg.getPartByUri('/xl/xmlMaps.xml');
-
-        //Excel操作オブジェクト
-        var excel = new openXml.Excel();
-
-        //シートデータのクリア
-        excel.clearSheetData(worksheetPart, tablePart);
-
-        //テーブルの表示範囲を設定
-        excel.setTableRange(tablePart, mergedata.length);
-
-        //差し込みデータの挿入
-        excel.mergeSheetData(mergedata, worksheetPart, tablePart, xmlmapPart);
-
-        //レポートファイルの出力
-        pkg.saveToBlobAsync(function (blob) {
-            saveAs(blob, reportName+'.xlsx');
-        });
-*/
     };
 });
