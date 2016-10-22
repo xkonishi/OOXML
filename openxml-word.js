@@ -112,7 +112,7 @@
     * @param [String] reportName		レポート名
     */
     openXml.Word.prototype.save = function(reportName) {
-        pkg.saveToBlobAsync(function (blob) {
+        pkg.saveToBlobAsync(function(blob) {
             saveAs(blob, reportName+'.docx');
         });
     };
