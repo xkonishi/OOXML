@@ -1,5 +1,8 @@
 ﻿(function(){
 
+    //正規表現パターン（差し込みフィールド用）
+    const REGEXP_MERGE = /[A-Za-z\.]+/g;
+
     //パッケージオブジェクト
     let pkg;
 
@@ -134,7 +137,7 @@
         });
 
         //フィールド名を“_”で分割
-        let array = fieldName.split('_');
+        let array = fieldName.match(REGEXP_MERGE);
 
         //フィールド情報の作成
         let fieldinfo = {};
