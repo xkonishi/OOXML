@@ -77,7 +77,7 @@
         }
         else if (fileType === 'Word') {
             let word = new openXml.Word(officedoc);
-            word.merge(mergedata[0]);
+            word.merge(mergedata);
             word.save(reportName);
         }
     };

@@ -6,9 +6,6 @@
     //パッケージオブジェクト
     let pkg;
 
-    //メインドキュメント［word/document.xml］XML文書
-    let mnXDoc;
-
     /************************ openXml.Word **************************/
 
     /**
@@ -19,10 +16,25 @@
 
         //パッケージオブジェクト
         pkg = new openXml.OpenXmlPackage(officedoc);
+    };
+
+    /**
+    * 差し込みデータの挿入
+    * @param [Object] mergedata		差し込みデータ
+    */
+    openXml.Word.prototype.merge = function(mergedata) {
 
         //メインドキュメント［word/document.xml］XML文書
-        mnXDoc = pkg.mainDocumentPart().getXDocument();
-    };
+        let mnXDoc = pkg.mainDocumentPart().getXDocument();
+
+        //差し込みデータの挿入
+        if (Object.keys(mergedata) > 0) {
+            let key = Object.keys(mergedata)[0];
+            merge(mergedata[key][0], mnXDoc);
+        }
+    }
+
+    /************************ inner functions **************************/
 
     /**
     * 差し込みデータの挿入
@@ -32,8 +44,9 @@
     * 　３．差し込みフィールドの装飾（太字、色、etc.）なし
     * 　４．親オブジェクトのデータは差し込み不可
     * @param [Object] mergedata		差し込みデータ
+    * @param [XDocument] mnXDoc		メインドキュメント［word/document.xml］XML文書
     */
-    openXml.Word.prototype.merge = function(mergedata) {
+    function merge(mergedata, mnXDoc) {
 
         //bodyタグ
         let body = mnXDoc.root.element(openXml.W.body);
@@ -119,8 +132,6 @@
             saveAs(blob, reportName+'.docx');
         });
     };
-
-    /************************ inner functions **************************/
 
     /**
     * 差し込みフィールド名を“_”で分割し、フィールド情報（SFDCオブジェクト名・項目名）を作成する

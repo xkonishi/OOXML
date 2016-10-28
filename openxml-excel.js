@@ -3,11 +3,6 @@
     //パッケージオブジェクト
     let pkg;
 
-    //ワークシート［xl/worksheets/sheet1.xml］XML文書
-    let wsXDoc;
-    //テーブル［xl/tables/table1.xml］XML文書
-    let tbXDoc;
-
     /************************ openXml.Excel **************************/
 
     /**
@@ -18,15 +13,46 @@
 
         //パッケージオブジェクト
         pkg = new openXml.OpenXmlPackage(officedoc);
-
-        //ワークシート［xl/worksheets/sheet1.xml］XML文書
-        let worksheetPart = pkg.workbookPart().worksheetParts()[0];//検証プログラムのため、先頭シート固定とする
-        wsXDoc = worksheetPart.getXDocument();
-
-        //テーブル［xl/tables/table1.xml］XML文書
-        let tablePart = worksheetPart.tableDefinitionParts()[0];//検証プログラムのため、先頭テーブル固定とする
-        tbXDoc = tablePart.getXDocument();
     };
+
+    /**
+    * 差し込みデータの挿入
+    * @param [Array] mergedata		差し込みデータ
+    */
+    openXml.Excel.prototype.merge = function(mergedata) {
+
+        //シート数分ループ
+        pkg.workbookPart().worksheetParts().forEach(function(sheet, index, ar) {
+
+            //ワークシート［xl/worksheets/sheet1.xml］XML文書
+            let wsXDoc = sheet.getXDocument();
+
+            let tableParts = sheet.tableDefinitionParts();
+            if (tableParts.length > 0) {
+
+                //テーブル［xl/tables/table1.xml］XML文書（検証プログラムのため、先頭テーブル固定とする）
+                let tbXDoc = tableParts[0].getXDocument();
+
+                //差し込みデータの挿入
+                let sheetIndex = (index + 1).toString();
+                if (mergedata[sheetIndex]) {
+                    merge(mergedata[sheetIndex], wsXDoc, tbXDoc);
+                }
+            }
+        });
+    }
+
+    /**
+    * レポートファイルの出力
+    * @param [String] reportName		レポート名
+    */
+    openXml.Excel.prototype.save = function(reportName) {
+        pkg.saveToBlobAsync(function(blob) {
+            saveAs(blob, reportName+'.xlsx');
+        });
+    };
+
+    /************************ inner functions **************************/
 
     /**
     * 差し込みデータの挿入
@@ -35,8 +61,10 @@
     * 　２．テーブルはヘッダ行＋1行の空行
     * 　３．テーブル以降のセルに余計な値を設定しない（ヘッダ行をコピーしてデータ行を作成しているため）
     * @param [Array] mergedata		差し込みデータ
+    * @param [XDocument] wsXDoc		ワークシート［xl/worksheets/sheet1.xml］XML文書
+    * @param [XDocument] tbXDoc		テーブル［xl/tables/table1.xml］XML文書
     */
-    openXml.Excel.prototype.merge = function(mergedata) {
+    function merge(mergedata, wsXDoc, tbXDoc) {
 
         //テーブル範囲の取得
         let ref = tbXDoc.root.attribute(openXml.NoNamespace._ref).value;
@@ -95,18 +123,6 @@
         //テーブル範囲の更新（フィルタ）
         tbXDoc.root.element(openXml.S.autoFilter).setAttributeValue(openXml.NoNamespace._ref, ref);
     };
-
-    /**
-    * レポートファイルの出力
-    * @param [String] reportName		レポート名
-    */
-    openXml.Excel.prototype.save = function(reportName) {
-        pkg.saveToBlobAsync(function(blob) {
-            saveAs(blob, reportName+'.xlsx');
-        });
-    };
-
-    /************************ inner functions **************************/
 
     /**
     * テーブル範囲の設定文字列より、先頭行・最終行・左位置・右位置を取得する
