@@ -1,4 +1,4 @@
-﻿ $(document).ready(function() {
+﻿$(document).ready(function() {
 
     //出力ボタンのクリック
     $('table[id$="reportlist"]').find('input[type=button]').click(function() {
