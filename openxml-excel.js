@@ -33,8 +33,11 @@
                 //テーブル［xl/tables/table1.xml］XML文書（検証プログラムのため、先頭テーブル固定とする）
                 let tbXDoc = tableParts[0].getXDocument();
 
-                //差し込みデータの挿入
+				//uriよりシートインデックスを取得
+				//例）"/xl/worksheets/sheet1.xml" → "1"
                 let sheetIndex = sheet.uri.match(/[0-9]/);
+
+                //差し込みデータの挿入
                 if (mergedata[sheetIndex]) {
                     merge(mergedata[sheetIndex], wsXDoc, tbXDoc);
                 }
