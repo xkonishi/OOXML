@@ -34,7 +34,7 @@
                 let tbXDoc = tableParts[0].getXDocument();
 
                 //差し込みデータの挿入
-                let sheetIndex = (index + 1).toString();
+                let sheetIndex = sheet.uri.match(/[0-9]/);
                 if (mergedata[sheetIndex]) {
                     merge(mergedata[sheetIndex], wsXDoc, tbXDoc);
                 }
