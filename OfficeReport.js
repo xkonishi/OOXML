@@ -14,30 +14,30 @@
         $.when(
             //Officeファイル（Base64形式）
             $.ajax(base+'/officefile/'+this.id+'?userId='+sfdc.userId,
-                   {
-                       beforeSend: function(xhr) {
-                           xhr.setRequestHeader('Authorization', 'Bearer '+sfdc.sessionId);
-                       },
-                       success: function(response) {
-                           console.log('OK!!:'+response);
-                       },
-                       error: function(jqXHR, textStatus, errorThrown) {
-                           console.log(textStatus);
-                       }
-                   }),
+            {
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer '+sfdc.sessionId);
+                },
+                success: function(response) {
+                    console.log('OK!!:'+response);
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus);
+                }
+            }),
             //差し込みデータ
             $.ajax(base+'/officedata/'+this.id+'?userId='+sfdc.userId,
-                   {
-                       beforeSend: function(xhr) {
-                           xhr.setRequestHeader('Authorization', 'Bearer '+sfdc.sessionId);
-                       },
-                       success: function(response) {
-                           console.log('OK!!:');
-                       },
-                       error: function(jqXHR, textStatus, errorThrown) {
-                           console.log(textStatus);
-                       }
-                   }),
+            {
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer '+sfdc.sessionId);
+                },
+                success: function(response) {
+                    console.log('OK!!:');
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.log(textStatus);
+                }
+            }),
             //レポート名
             this.name,
             //ファイルタイプ
