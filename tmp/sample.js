@@ -1,4 +1,3 @@
-
 function test(sessionId) {
 	
 	//画面のブロック
