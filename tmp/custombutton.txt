@@ -1,20 +1,4 @@
-{!REQUIRESCRIPT('/resource/1467605661000/CITS__jQuery191')}
-{!REQUIRESCRIPT('/resource/1475146230000/CITS__jqueryblockUI')}
-
-{!REQUIRESCRIPT('/resource/1474064808000/CITS__linq')}
-{!REQUIRESCRIPT('/resource/1474064808000/CITS__ltxml')}
-{!REQUIRESCRIPT('/resource/1474064808000/CITS__ltxmlext')}
-{!REQUIRESCRIPT('/resource/1467610622000/CITS__jszip')}
-{!REQUIRESCRIPT('/resource/1467610704000/CITS__jszipload')}
-{!REQUIRESCRIPT('/resource/1467610681000/CITS__jszipinflate')}
-{!REQUIRESCRIPT('/resource/1467610655000/CITS__jszipdeflate')}
-{!REQUIRESCRIPT('/resource/1468705255000/CITS__FileSaver')}
-{!REQUIRESCRIPT('/resource/1467610799000/CITS__openxml')}
-{!REQUIRESCRIPT('/resource/1479608354000/CITS__openxmlexcel')}
-{!REQUIRESCRIPT('/resource/1477771837000/CITS__openxmlword')}
-{!REQUIRESCRIPT('/resource/1477771837000/CITS__OfficeReport')}
-
-{!REQUIRESCRIPT('/resource/1479708310000/CITS__sample')}
+{!REQUIRESCRIPT('/resource/1479715776000/CITS__samplezip')}
 
 let sessionId = "{!$Api.Session_ID}";
 test(sessionId);
