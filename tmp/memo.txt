@@ -1,0 +1,60 @@
+
+-------------------------------------------------------------------------------------
+
+{!REQUIRESCRIPT('/resource/1467605661000/CITS__jQuery191')}
+{!REQUIRESCRIPT('/resource/1475146230000/CITS__jqueryblockUI')}
+
+{!REQUIRESCRIPT('/resource/1474064808000/CITS__linq')}
+{!REQUIRESCRIPT('/resource/1474064808000/CITS__ltxml')}
+{!REQUIRESCRIPT('/resource/1474064808000/CITS__ltxmlext')}
+{!REQUIRESCRIPT('/resource/1467610622000/CITS__jszip')}
+{!REQUIRESCRIPT('/resource/1467610704000/CITS__jszipload')}
+{!REQUIRESCRIPT('/resource/1467610681000/CITS__jszipinflate')}
+{!REQUIRESCRIPT('/resource/1467610655000/CITS__jszipdeflate')}
+{!REQUIRESCRIPT('/resource/1468705255000/CITS__FileSaver')}
+{!REQUIRESCRIPT('/resource/1467610799000/CITS__openxml')}
+{!REQUIRESCRIPT('/resource/1479608354000/CITS__openxmlexcel')}
+{!REQUIRESCRIPT('/resource/1477771837000/CITS__openxmlword')}
+{!REQUIRESCRIPT('/resource/1477771837000/CITS__OfficeReport')}
+
+-------------------------------------------------------------------------------------
+
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './jquery.js')}")}
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './jqueryblockUI.js')}")}
+
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './linq.js')}")}
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './ltxml.js')}")}
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './ltxml-extensions.js')}")}
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './jszip.js')}")}
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './jszip-load.js')}")}
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './jszip-inflate.js')}")}
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './jszip-deflate.js')}")}
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './FileSaver.js')}")}
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './openxml.js')}")}
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './openxml-excel.js')}")}
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './openxml-word.js')}")}
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './OfficeReport.js')}")}
+
+{!REQUIRESCRIPT("{!URLFOR($Resource.samplezip, './sample.js')}")}
+
+-------------------------------------------------------------------------------------
+
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__jQuery191')}
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__jqueryblockUI')}
+
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__linq')}
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__ltxml')}
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__ltxmlext')}
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__jszip')}
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__jszipload')}
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__jszipinflate')}
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__jszipdeflate')}
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__FileSaver')}
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__openxml')}
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__openxmlexcel')}
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__openxmlword')}
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__OfficeReport')}
+
+{!REQUIRESCRIPT('/resource/' & LEFT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(TEXT(NOW()),':',''),'-',''),' ',''),10) & '000/CITS__sample')}
+
+-------------------------------------------------------------------------------------
