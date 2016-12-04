@@ -4,3 +4,7 @@ SELECT Name,AnnualRevenue,Phone,Website,(SELECT Name,Title,Email,Phone FROM Cont
 Contact:
 SELECT Name, Account.Name FROM Contact WHERE Id='0032800000CeoAA'
 
+
+[{"s":["Name","AnnualRevenue","Phone","Website"],"c":[{"s":["Name","Title","Email","Phone"],"f":"Contacts"}],"f":"Account"}]
+
+
