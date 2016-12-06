@@ -1,2 +1,2 @@
 var print = require("./print");
-print("Hello webpack");
+print.test("Hello webpack");

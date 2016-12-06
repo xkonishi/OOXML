@@ -1,3 +1,3 @@
-module.exports = function(msg) {
+module.exports.test = function(msg) {
   document.write("[print] " + msg);
 };

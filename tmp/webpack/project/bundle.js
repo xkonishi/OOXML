@@ -45,13 +45,13 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var print = __webpack_require__(1);
-	print("Hello webpack");
+	print.test("Hello webpack");
 
 /***/ },
 /* 1 */
 /***/ function(module, exports) {
 
-	module.exports = function(msg) {
+	module.exports.test = function(msg) {
 	  document.write("[print] " + msg);
 	};
 
